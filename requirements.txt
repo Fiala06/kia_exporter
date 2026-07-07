@@ -1,0 +1,2 @@
+hyundai_kia_connect_api==4.14.1
+influxdb>=5.3.2

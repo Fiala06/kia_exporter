@@ -1,0 +1,9 @@
+# Runtime state / secrets — never commit
+data/
+*.pkl
+mpg_state.json
+.env
+
+# Python
+__pycache__/
+*.pyc
