@@ -56,14 +56,13 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "${datasource}"
+                      "name": "cf80ol19u4agwa"
                     },
-                    "group": "influxdb",
+                    "group": "prometheus",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "SELECT mean(\"outside_temp\") AS \"outside temp\" FROM \"kia\" WHERE $timeFilter GROUP BY time($__interval) fill(none)",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
+                      "expr": "weather_temperature{location=\"home\"}",
+                      "legendFormat": "outside temp (home)"
                     },
                     "version": "v0"
                   },
@@ -75,10 +74,10 @@
             "transformations": []
           }
         },
-        "description": "",
+        "description": "MPG derived in-exporter (fill-up to fill-up). Outside temp from weather_exporter (Open-Meteo, Cottage Grove) via Prometheus — the car does not report outside_temperature.",
         "id": 10,
         "links": [],
-        "title": "Segment MPG vs Outside Temp",
+        "title": "Segment MPG vs Outside Temp (home)",
         "vizConfig": {
           "group": "timeseries",
           "kind": "VizConfig",
@@ -638,7 +637,7 @@
                     "group": "influxdb",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "SELECT last(\"tpms_warn\") AS \"Tire Pressure\" FROM \"kia\" WHERE $timeFilter",
+                      "query": "SELECT last(\"fuel_low\") AS \"Low Fuel\" FROM \"kia\" WHERE $timeFilter",
                       "rawQuery": true,
                       "resultFormat": "time_series"
                     },
@@ -658,7 +657,7 @@
                     "group": "influxdb",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "SELECT last(\"fuel_low\") AS \"Low Fuel\" FROM \"kia\" WHERE $timeFilter",
+                      "query": "SELECT last(\"washer_low\") AS \"Washer Fluid\" FROM \"kia\" WHERE $timeFilter",
                       "rawQuery": true,
                       "resultFormat": "time_series"
                     },
@@ -678,7 +677,7 @@
                     "group": "influxdb",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "SELECT last(\"washer_low\") AS \"Washer Fluid\" FROM \"kia\" WHERE $timeFilter",
+                      "query": "SELECT last(\"key_batt_warn\") AS \"Key Fob Batt\" FROM \"kia\" WHERE $timeFilter",
                       "rawQuery": true,
                       "resultFormat": "time_series"
                     },
@@ -686,53 +685,13 @@
                   },
                   "refId": "C"
                 }
-              },
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"brake_fluid_warn\") AS \"Brake Fluid\" FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "D"
-                }
-              },
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"key_batt_warn\") AS \"Key Fob Batt\" FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "E"
-                }
               }
             ],
             "queryOptions": {},
             "transformations": []
           }
         },
-        "description": "",
+        "description": "TPMS, brake-fluid, door/hood/trunk sensors are not exposed by this vehicle via Kia Connect; per-tire PSI thresholds cover tires instead.",
         "id": 16,
         "links": [],
         "title": "Warnings",
@@ -757,203 +716,7 @@
                     "type": "value"
                   }
                 ],
-                "noValue": "\u2014",
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": 0
-                    },
-                    {
-                      "color": "red",
-                      "value": 1
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "options": {
-              "colorMode": "background",
-              "graphMode": "none",
-              "justifyMode": "auto",
-              "orientation": "auto",
-              "percentChangeColorMode": "standard",
-              "reduceOptions": {
-                "calcs": [
-                  "lastNotNull"
-                ],
-                "fields": "",
-                "values": false
-              },
-              "showPercentChange": false,
-              "textMode": "value_and_name",
-              "wideLayout": true
-            }
-          },
-          "version": "13.1.0"
-        }
-      }
-    },
-    "panel-17": {
-      "kind": "Panel",
-      "spec": {
-        "data": {
-          "kind": "QueryGroup",
-          "spec": {
-            "queries": [
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"door_fl_open\") AS \"Front L\" FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "A"
-                }
-              },
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"door_fr_open\") AS \"Front R\" FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "B"
-                }
-              },
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"door_rl_open\") AS \"Rear L\" FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "C"
-                }
-              },
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"door_rr_open\") AS \"Rear R\" FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "D"
-                }
-              },
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"hood_open\") AS \"Hood\" FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "E"
-                }
-              },
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"trunk_open\") AS \"Trunk\" FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "F"
-                }
-              }
-            ],
-            "queryOptions": {},
-            "transformations": []
-          }
-        },
-        "description": "",
-        "id": 17,
-        "links": [],
-        "title": "Doors / Hood / Trunk",
-        "vizConfig": {
-          "group": "stat",
-          "kind": "VizConfig",
-          "spec": {
-            "fieldConfig": {
-              "defaults": {
-                "mappings": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "green",
-                        "text": "Closed"
-                      },
-                      "1": {
-                        "color": "red",
-                        "text": "OPEN"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ],
-                "noValue": "\u2014",
+                "noValue": "—",
                 "thresholds": {
                   "mode": "absolute",
                   "steps": [
@@ -2055,92 +1818,6 @@
         }
       }
     },
-    "panel-22": {
-      "kind": "Panel",
-      "spec": {
-        "data": {
-          "kind": "QueryGroup",
-          "spec": {
-            "queries": [
-              {
-                "kind": "PanelQuery",
-                "spec": {
-                  "hidden": false,
-                  "query": {
-                    "datasource": {
-                      "name": "${datasource}"
-                    },
-                    "group": "influxdb",
-                    "kind": "DataQuery",
-                    "spec": {
-                      "query": "SELECT last(\"hev_battery_soh_pct\") FROM \"kia\" WHERE $timeFilter",
-                      "rawQuery": true,
-                      "resultFormat": "time_series"
-                    },
-                    "version": "v0"
-                  },
-                  "refId": "A"
-                }
-              }
-            ],
-            "queryOptions": {},
-            "transformations": []
-          }
-        },
-        "description": "",
-        "id": 22,
-        "links": [],
-        "title": "HEV Battery SOH",
-        "vizConfig": {
-          "group": "stat",
-          "kind": "VizConfig",
-          "spec": {
-            "fieldConfig": {
-              "defaults": {
-                "decimals": 0,
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "red",
-                      "value": 0
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 85
-                    },
-                    {
-                      "color": "green",
-                      "value": 95
-                    }
-                  ]
-                },
-                "unit": "percent"
-              },
-              "overrides": []
-            },
-            "options": {
-              "colorMode": "value",
-              "graphMode": "area",
-              "justifyMode": "auto",
-              "orientation": "auto",
-              "percentChangeColorMode": "standard",
-              "reduceOptions": {
-                "calcs": [
-                  "lastNotNull"
-                ],
-                "fields": "",
-                "values": false
-              },
-              "showPercentChange": false,
-              "textMode": "auto",
-              "wideLayout": true
-            }
-          },
-          "version": "13.1.0"
-        }
-      }
-    },
     "panel-23": {
       "kind": "Panel",
       "spec": {
@@ -2285,7 +1962,7 @@
                     "group": "influxdb",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "SELECT last(\"next_service_distance\") FROM \"kia\" WHERE $timeFilter",
+                      "query": "SELECT 8000 - (last(\"odometer\") % 8000) FROM \"kia\" WHERE $timeFilter",
                       "rawQuery": true,
                       "resultFormat": "time_series"
                     },
@@ -2299,10 +1976,10 @@
             "transformations": []
           }
         },
-        "description": "",
+        "description": "Computed as 8000 - (odometer % 8000) — Kia's published 8,000 mi / 12 mo schedule for the Sportage HEV. Does NOT use the API's next_service_distance, which just echoes the in-car service reminder (observed set to 24,000 mi — fix in cluster settings). Caveat: modulo math doesn't know about early/late actual service visits.",
         "id": 24,
         "links": [],
-        "title": "Next Service In",
+        "title": "Next Service In (8K interval)",
         "vizConfig": {
           "group": "stat",
           "kind": "VizConfig",
@@ -2319,11 +1996,11 @@
                     },
                     {
                       "color": "yellow",
-                      "value": 250
+                      "value": 500
                     },
                     {
                       "color": "green",
-                      "value": 1000
+                      "value": 1500
                     }
                   ]
                 },
@@ -2434,7 +2111,7 @@
         }
       }
     },
-    "panel-26": {
+    "panel-27": {
       "kind": "Panel",
       "spec": {
         "data": {
@@ -2452,7 +2129,123 @@
                     "group": "influxdb",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "SELECT last(\"hev_battery_soh_pct\") AS \"SOH\" FROM \"kia\" WHERE $timeFilter GROUP BY time(1d) fill(previous)",
+                      "query": "SELECT last(\"engine_running\") AS \"Engine\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"climate_on\") AS \"Climate\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "B"
+                }
+              }
+            ],
+            "queryOptions": {},
+            "transformations": []
+          }
+        },
+        "description": "",
+        "id": 27,
+        "links": [],
+        "title": "Engine / Climate",
+        "vizConfig": {
+          "group": "stat",
+          "kind": "VizConfig",
+          "spec": {
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "green",
+                        "text": "Off"
+                      },
+                      "1": {
+                        "color": "blue",
+                        "text": "ON"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ],
+                "noValue": "—",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "options": {
+              "colorMode": "background",
+              "graphMode": "none",
+              "justifyMode": "auto",
+              "orientation": "auto",
+              "percentChangeColorMode": "standard",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "values": false
+              },
+              "showPercentChange": false,
+              "textMode": "value_and_name",
+              "wideLayout": true
+            }
+          },
+          "version": "13.1.0"
+        }
+      }
+    },
+    "panel-28": {
+      "kind": "Panel",
+      "spec": {
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"speed\") FROM \"kia\" WHERE $timeFilter",
                       "rawQuery": true,
                       "resultFormat": "time_series"
                     },
@@ -2467,54 +2260,16 @@
           }
         },
         "description": "",
-        "id": 26,
+        "id": 28,
         "links": [],
-        "title": "HEV Battery SOH Trend",
+        "title": "Speed",
         "vizConfig": {
-          "group": "timeseries",
+          "group": "stat",
           "kind": "VizConfig",
           "spec": {
             "fieldConfig": {
               "defaults": {
-                "color": {
-                  "mode": "palette-classic"
-                },
-                "custom": {
-                  "axisBorderShow": false,
-                  "axisCenteredZero": false,
-                  "axisColorMode": "text",
-                  "axisLabel": "",
-                  "axisPlacement": "auto",
-                  "barAlignment": 0,
-                  "barWidthFactor": 0.6,
-                  "drawStyle": "line",
-                  "fillOpacity": 15,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "insertNulls": false,
-                  "lineInterpolation": "stepAfter",
-                  "lineWidth": 1,
-                  "pointSize": 5,
-                  "scaleDistribution": {
-                    "type": "linear"
-                  },
-                  "showPoints": "auto",
-                  "showValues": false,
-                  "spanNulls": true,
-                  "stacking": {
-                    "group": "A",
-                    "mode": "none"
-                  },
-                  "thresholdsStyle": {
-                    "mode": "off"
-                  }
-                },
-                "max": 100,
-                "min": 50,
+                "decimals": 0,
                 "thresholds": {
                   "mode": "absolute",
                   "steps": [
@@ -2528,28 +2283,26 @@
                     }
                   ]
                 },
-                "unit": "percent"
+                "unit": "velocitymph"
               },
               "overrides": []
             },
             "options": {
-              "annotations": {
-                "clustering": -1,
-                "multiLane": false
+              "colorMode": "none",
+              "graphMode": "none",
+              "justifyMode": "auto",
+              "orientation": "auto",
+              "percentChangeColorMode": "standard",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "values": false
               },
-              "legend": {
-                "calcs": [],
-                "displayMode": "list",
-                "enableFacetedFilter": false,
-                "overflow": "ellipsis",
-                "placement": "bottom",
-                "showLegend": true
-              },
-              "tooltip": {
-                "hideZeros": false,
-                "mode": "single",
-                "sort": "none"
-              }
+              "showPercentChange": false,
+              "textMode": "auto",
+              "wideLayout": true
             }
           },
           "version": "13.1.0"
@@ -2800,7 +2553,7 @@
                         "name": "panel-16"
                       },
                       "height": 6,
-                      "width": 12,
+                      "width": 9,
                       "x": 0,
                       "y": 8
                     }
@@ -2810,25 +2563,12 @@
                     "spec": {
                       "element": {
                         "kind": "ElementReference",
-                        "name": "panel-17"
+                        "name": "panel-27"
                       },
                       "height": 6,
-                      "width": 12,
-                      "x": 12,
+                      "width": 9,
+                      "x": 9,
                       "y": 8
-                    }
-                  },
-                  {
-                    "kind": "GridLayoutItem",
-                    "spec": {
-                      "element": {
-                        "kind": "ElementReference",
-                        "name": "panel-22"
-                      },
-                      "height": 6,
-                      "width": 6,
-                      "x": 0,
-                      "y": 14
                     }
                   },
                   {
@@ -2840,21 +2580,8 @@
                       },
                       "height": 6,
                       "width": 6,
-                      "x": 6,
-                      "y": 14
-                    }
-                  },
-                  {
-                    "kind": "GridLayoutItem",
-                    "spec": {
-                      "element": {
-                        "kind": "ElementReference",
-                        "name": "panel-26"
-                      },
-                      "height": 6,
-                      "width": 12,
-                      "x": 12,
-                      "y": 14
+                      "x": 18,
+                      "y": 8
                     }
                   }
                 ]
@@ -2879,7 +2606,7 @@
                         "name": "panel-19"
                       },
                       "height": 8,
-                      "width": 18,
+                      "width": 14,
                       "x": 0,
                       "y": 0
                     }
@@ -2892,8 +2619,21 @@
                         "name": "panel-20"
                       },
                       "height": 8,
-                      "width": 6,
-                      "x": 18,
+                      "width": 5,
+                      "x": 14,
+                      "y": 0
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-28"
+                      },
+                      "height": 8,
+                      "width": 5,
+                      "x": 19,
                       "y": 0
                     }
                   }
