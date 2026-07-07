@@ -56,7 +56,7 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "cf80ol19u4agwa"
+                      "name": "${prometheus}"
                     },
                     "group": "prometheus",
                     "kind": "DataQuery",
@@ -2690,6 +2690,27 @@
         "name": "datasource",
         "options": [],
         "pluginId": "influxdb",
+        "refresh": "onDashboardLoad",
+        "regex": "",
+        "skipUrlSync": false
+      }
+    },
+    {
+      "kind": "DatasourceVariable",
+      "spec": {
+        "allowCustomValue": true,
+        "current": {
+          "text": "Prometheus",
+          "value": "cf80ol19u4agwa"
+        },
+        "description": "Optional: only used by the 'Segment MPG vs Outside Temp' overlay, which needs a weather_exporter feeding weather_temperature into Prometheus. Leave unset if you don't run one.",
+        "hide": "dontHide",
+        "includeAll": false,
+        "label": "Prometheus (outside temp overlay)",
+        "multi": false,
+        "name": "prometheus",
+        "options": [],
+        "pluginId": "prometheus",
         "refresh": "onDashboardLoad",
         "regex": "",
         "skipUrlSync": false
