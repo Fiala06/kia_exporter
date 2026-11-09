@@ -810,7 +810,7 @@
         "description": "",
         "id": 19,
         "links": [],
-        "title": "Location (trail over dashboard window)",
+        "title": "Location (follows the car; trail over dashboard window)",
         "vizConfig": {
           "group": "geomap",
           "kind": "VizConfig",
@@ -912,13 +912,14 @@
                 "mode": "details"
               },
               "view": {
-                "allLayers": true,
+                "allLayers": false,
                 "dashboardVariable": false,
-                "id": "coords",
-                "lat": 43.8,
-                "lon": -123.06,
+                "id": "fit",
+                "lastOnly": true,
+                "layer": "Current",
                 "noRepeat": false,
-                "zoom": 11
+                "padding": 5,
+                "zoom": 13
               }
             }
           },

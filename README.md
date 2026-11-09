@@ -144,8 +144,9 @@ pressure, warnings, doors, a location trail map, and a data-staleness stat.
 The `$prometheus` variable is optional — it only feeds the "Segment MPG vs
 Outside Temp" overlay, which expects a separate weather exporter publishing
 `weather_temperature` to Prometheus. Leave it unset if you don't run one; the
-rest of the dashboard is InfluxDB-only. The geomap also centers on a fixed
-lat/lon (edit the panel's map view to your area).
+rest of the dashboard is InfluxDB-only. The geomap follows the car: it
+re-centres on the latest position every refresh (max zoom 13), so it
+needs no per-user coordinates.
 
 ## Utilities
 
