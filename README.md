@@ -7,16 +7,26 @@ on non-EVs).
 
 ## What it collects
 
-- Odometer, fuel level %, fuel/total range
-- 12V battery %, HEV battery state-of-health %
-- Cabin setpoint + outside temperature
-- Per-tire PSI, DTC count, service distances
-- Lock state, doors/hood/trunk, TPMS / fuel / washer / brake / key-fob warnings
+- Odometer, fuel level %, fuel range
+- 12V battery %
+- Cabin setpoint
+- Per-tire PSI, TPMS / brake-fluid / engine-oil / washer / low-fuel / key-fob
+  warnings, bulb or wiring fault, DTC count
+- Lock state; doors, hood, trunk, sunroof open; window positions
+- Engine running, ignition on, climate on, defrost, hazards, tail lamps, valet mode
 - GPS lat/lon, heading, speed
+- When the car itself last reported its status and its position
+  (`status_synced_at`, `location_synced_at`, epoch ms)
+- Next service per Kia's own maintenance schedule (`miles_to_scheduled_service`)
+  as well as the in-car reminder (`next_service_distance`)
 - **Derived:** `mpg_segment` (fill-up to fill-up fuel economy) and `fillup`
   events — the Kia API reports no fuel economy on the HEV, so the exporter
   detects fill-ups as an upward jump in fuel level and computes
   miles-driven / gallons-burned since the last one.
+
+Fields the API has but this car leaves empty (HEV battery state of health,
+outside temperature, total range, EV/charging) are written if they ever
+show up. `kia_dump.py` (below) shows exactly what your car sends.
 
 ## Requirements
 
@@ -138,8 +148,9 @@ mailbox can't hammer Kia's login, which rate-limits hard.
 
 `grafana/Kia_Sportage_HEV_V2.json` — import and point the `$datasource`
 variable at an InfluxDB (InfluxQL) datasource for the `vehicle` database.
-Includes fuel/range/MPG trends, daily miles, 12V and HEV-SOH trends, tire
-pressure, warnings, doors, a location trail map, and a data-staleness stat.
+Includes fuel/range/MPG trends, daily miles, 12V trends, tire pressure,
+warnings, doors/hood/trunk/windows, next scheduled service, when the car
+last reported, a location map that follows the car, and a data-staleness stat.
 
 The `$prometheus` variable is optional — it only feeds the "Segment MPG vs
 Outside Temp" overlay, which expects a separate weather exporter publishing

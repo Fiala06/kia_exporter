@@ -31,11 +31,7 @@ import datetime as dt
 import kia_influx as ki
 
 # Raw paths kia_influx.extra_fields() reads directly (not via the library).
-EXPORTER_RAW_PATHS = {
-    "lastVehicleInfo.vehicleStatusRpt.vehicleStatus.tirePressureDetail",
-    "lastVehicleInfo.location.head",
-    "lastVehicleInfo.location.speed.value",
-}
+EXPORTER_RAW_PATHS = set(ki.RAW_PATHS_READ)
 
 # Library attributes that are bookkeeping, not vehicle metrics.
 META_ATTRS = {

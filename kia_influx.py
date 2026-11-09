@@ -130,6 +130,49 @@ BOOL_FIELDS = {
     "back_left_door_is_open": "door_rl_open",
     "back_right_door_is_open": "door_rr_open",
 }
+# --- Raw-payload fields --------------------------------------------------
+# Values the exporter reads straight from the Kia payload (vehicle.data),
+# because the library leaves them out or mis-types them. VS is the status
+# report block every poll carries.
+VS = ("lastVehicleInfo", "vehicleStatusRpt", "vehicleStatus")
+
+# bool or 0/1 -> 0.0/1.0
+RAW_FLAG_FIELDS = {
+    # library reads "breakOilStatus" (sic) and always gets None
+    VS + ("brakeOilStatus",): "brake_fluid_warn",
+    VS + ("engineOilStatus",): "engine_oil_warn",
+    VS + ("tirePressure", "all"): "tpms_warn",
+    VS + ("sunroofOpen",): "sunroof_open",
+    VS + ("climate", "defrost"): "defrost_on",
+    VS + ("ign3",): "ignition_on",
+    VS + ("valetParkingMode",): "valet_mode",
+    VS + ("lightStatus", "hazardStatus"): "hazard_on",
+    VS + ("lightStatus", "tailLampStatus"): "tail_lamp_on",
+}
+
+# numbers as they come (windows report a position, 0 = closed)
+RAW_NUMBER_FIELDS = {
+    VS + ("windowStatus", "windowFL"): "window_fl",
+    VS + ("windowStatus", "windowFR"): "window_fr",
+    VS + ("windowStatus", "windowRL"): "window_rl",
+    VS + ("windowStatus", "windowRR"): "window_rr",
+    ("lastVehicleInfo", "location", "head"): "heading",
+    ("lastVehicleInfo", "location", "speed", "value"): "speed",
+}
+
+TIRE_DETAIL = VS + ("tirePressureDetail",)
+LAMP_WIRE = VS + ("lampWireStatus",)               # any True = a bulb/wire fault
+STATUS_SYNC = VS + ("syncDate", "utc")             # when the car last reported
+LOCATION_SYNC = ("lastVehicleInfo", "location", "syncDate", "utc")
+MAINT_SCHEDULE = ("vehicleConfig", "maintenance", "maintenanceSchedule")
+RAW_MILEAGE = ("vehicleConfig", "vehicleDetail", "vehicle", "mileage")
+
+# Every raw path the exporter reads, for kia_dump.py's "unused" list.
+RAW_PATHS_READ = {".".join(k) for k in RAW_FLAG_FIELDS} | \
+    {".".join(k) for k in RAW_NUMBER_FIELDS} | \
+    {".".join(k) for k in (TIRE_DETAIL, LAMP_WIRE, STATUS_SYNC,
+                           LOCATION_SYNC, MAINT_SCHEDULE, RAW_MILEAGE)}
+
 
 AUTH_HELP = (
     "Run the one-time auth from another shell (the loop picks the new token "
@@ -521,6 +564,51 @@ def to_number(v):
     return None
 
 
+def to_flag(v):
+    """bool, 0/1, or "0"/"1" -> 0.0/1.0. The library hands Kia USA flags
+    through as the raw ints, so a bool-only check drops doors and TPMS."""
+    if isinstance(v, bool):
+        return 1.0 if v else 0.0
+    if isinstance(v, (int, float)) and v in (0, 1):
+        return float(v)
+    if isinstance(v, str) and v.strip() in ("0", "1"):
+        return float(v.strip())
+    return None
+
+
+def kia_utc_ms(value):
+    """Kia timestamps look like 20261109161749 or 20261109171422.244 (UTC).
+    Returns epoch milliseconds, or None."""
+    if not isinstance(value, str) or len(value) < 14 or not value[:14].isdigit():
+        return None
+    try:
+        t = dt.datetime.strptime(value[:14], "%Y%m%d%H%M%S").replace(
+            tzinfo=dt.timezone.utc)
+    except ValueError:
+        return None
+    return float(int(t.timestamp()) * 1000)
+
+
+def scheduled_service(schedule, odometer):
+    """Kia's own maintenance schedule (8000, 16000, ...) vs the odometer."""
+    if odometer is None or not isinstance(schedule, list):
+        return {}
+    miles = sorted(m for m in (to_number(x) for x in schedule) if m)
+    nxt = next((m for m in miles if m > odometer), None)
+    if nxt is None:
+        return {}
+    return {"scheduled_service_at": nxt,
+            "miles_to_scheduled_service": round(nxt - odometer, 1)}
+
+
+def any_true(obj):
+    if isinstance(obj, dict):
+        return any(any_true(v) for v in obj.values())
+    if isinstance(obj, list):
+        return any(any_true(v) for v in obj)
+    return obj is True or obj == 1
+
+
 def dig(d, *keys, default=None):
     """Safely walk nested dicts; return default if any key is missing."""
     cur = d
@@ -532,15 +620,23 @@ def dig(d, *keys, default=None):
 
 
 def extra_fields(vehicle):
-    """Pull values that the flat attributes leave null but exist in the raw blob."""
+    """Values the flat attributes leave out but the raw payload has."""
     out = {}
     data = getattr(vehicle, "data", None)
     if not isinstance(data, dict):
         return out
-    vs = dig(data, "lastVehicleInfo", "vehicleStatusRpt", "vehicleStatus", default={})
+
+    for path, fname in RAW_FLAG_FIELDS.items():
+        flag = to_flag(dig(data, *path))
+        if flag is not None:
+            out[fname] = flag
+    for path, fname in RAW_NUMBER_FIELDS.items():
+        num = to_number(dig(data, *path))
+        if num is not None:
+            out[fname] = num
 
     # Per-tire PSI from tirePressureDetail
-    tpd = vs.get("tirePressureDetail", {})
+    tpd = dig(data, *TIRE_DETAIL, default={})
     tire_map = {
         ("row1", "Left"): "tire_psi_fl",
         ("row1", "Right"): "tire_psi_fr",
@@ -560,16 +656,25 @@ def extra_fields(vehicle):
     except (TypeError, ValueError):
         pass
 
-    # Heading + speed from location block
-    head = dig(data, "lastVehicleInfo", "location", "head")
-    if isinstance(head, (int, float)):
-        out["heading"] = float(head)
-    spd = dig(data, "lastVehicleInfo", "location", "speed", "value")
-    if isinstance(spd, (int, float)):
-        out["speed"] = float(spd)
+    # Bulb / wiring faults: one flag for the whole lampWireStatus block
+    lamps = dig(data, *LAMP_WIRE)
+    if isinstance(lamps, dict):
+        out["lamp_fault"] = 1.0 if any_true(lamps) else 0.0
+
+    # When the car itself last reported (not when we polled)
+    for path, fname in ((STATUS_SYNC, "status_synced_at"),
+                        (LOCATION_SYNC, "location_synced_at")):
+        ms = kia_utc_ms(dig(data, *path))
+        if ms is not None:
+            out[fname] = ms
+
+    # Next service per Kia's own schedule
+    odo = to_number(getattr(vehicle, "odometer", None))
+    if odo is None:
+        odo = to_number(dig(data, *RAW_MILEAGE))
+    out.update(scheduled_service(dig(data, *MAINT_SCHEDULE), odo))
 
     return out
-
 
 def load_mpg_state():
     try:
@@ -632,9 +737,9 @@ def build_point(vehicle):
         if num is not None:
             fields[fname] = num
     for attr, fname in BOOL_FIELDS.items():
-        val = getattr(vehicle, attr, None)
-        if isinstance(val, bool):
-            fields[fname] = 1.0 if val else 0.0
+        flag = to_flag(getattr(vehicle, attr, None))
+        if flag is not None:
+            fields[fname] = flag
     fields.update(extra_fields(vehicle))
     if not fields:
         return None

@@ -685,13 +685,113 @@
                   },
                   "refId": "C"
                 }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"tpms_warn\") AS \"TPMS\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "D"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"brake_fluid_warn\") AS \"Brake Fluid\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "E"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"engine_oil_warn\") AS \"Engine Oil\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "F"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"lamp_fault\") AS \"Bulb Fault\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "G"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"dtc_count\") AS \"Trouble Codes\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "H"
+                }
               }
             ],
             "queryOptions": {},
             "transformations": []
           }
         },
-        "description": "TPMS, brake-fluid, door/hood/trunk sensors are not exposed by this vehicle via Kia Connect; per-tire PSI thresholds cover tires instead.",
+        "description": "0 = OK, 1 = warning, straight from the car's status report. Trouble Codes is a count. Doors, hood, trunk, windows and sunroof have their own panel.",
         "id": 16,
         "links": [],
         "title": "Warnings",
@@ -714,6 +814,17 @@
                       }
                     },
                     "type": "value"
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 2,
+                      "to": 999,
+                      "result": {
+                        "color": "red",
+                        "text": "WARN"
+                      }
+                    }
                   }
                 ],
                 "noValue": "—",
@@ -1963,7 +2074,7 @@
                     "group": "influxdb",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "SELECT 8000 - (last(\"odometer\") % 8000) FROM \"kia\" WHERE $timeFilter",
+                      "query": "SELECT last(\"miles_to_scheduled_service\") FROM \"kia\" WHERE $timeFilter",
                       "rawQuery": true,
                       "resultFormat": "time_series"
                     },
@@ -1977,10 +2088,10 @@
             "transformations": []
           }
         },
-        "description": "Computed as 8000 - (odometer % 8000) — Kia's published 8,000 mi / 12 mo schedule for the Sportage HEV. Does NOT use the API's next_service_distance, which just echoes the in-car service reminder (observed set to 24,000 mi — fix in cluster settings). Caveat: modulo math doesn't know about early/late actual service visits.",
+        "description": "Miles to the next entry in Kia's own maintenance schedule for this car (maintenanceSchedule in the payload: 8,000, 16,000, 24,000 ...). The in-car reminder (next_service_distance) is separate and depends on what was set in the cluster.",
         "id": 24,
         "links": [],
-        "title": "Next Service In (8K interval)",
+        "title": "Next Scheduled Service In",
         "vizConfig": {
           "group": "stat",
           "kind": "VizConfig",
@@ -2309,6 +2420,394 @@
           "version": "13.1.0"
         }
       }
+    },
+    "panel-30": {
+      "kind": "Panel",
+      "spec": {
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"hood_open\") AS \"Hood\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"trunk_open\") AS \"Trunk\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "B"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"door_fl_open\") AS \"Door FL\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "C"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"door_fr_open\") AS \"Door FR\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "D"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"door_rl_open\") AS \"Door RL\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "E"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"door_rr_open\") AS \"Door RR\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "F"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"sunroof_open\") AS \"Sunroof\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "G"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"window_fl\") AS \"Window FL\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "H"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"window_fr\") AS \"Window FR\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "I"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"window_rl\") AS \"Window RL\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "J"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"window_rr\") AS \"Window RR\" FROM \"kia\" WHERE $timeFilter",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "K"
+                }
+              }
+            ],
+            "queryOptions": {},
+            "transformations": []
+          }
+        },
+        "description": "From the car's status report. Windows report a position; anything above 0 shows as OPEN.",
+        "id": 30,
+        "links": [],
+        "title": "Doors, Hood, Trunk, Windows",
+        "vizConfig": {
+          "group": "stat",
+          "kind": "VizConfig",
+          "spec": {
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "green",
+                        "text": "Closed"
+                      },
+                      "1": {
+                        "color": "red",
+                        "text": "OPEN"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 1,
+                      "to": 1000,
+                      "result": {
+                        "color": "red",
+                        "text": "OPEN"
+                      }
+                    }
+                  }
+                ],
+                "noValue": "—",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "options": {
+              "colorMode": "background",
+              "graphMode": "none",
+              "justifyMode": "auto",
+              "orientation": "auto",
+              "percentChangeColorMode": "standard",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "values": false
+              },
+              "showPercentChange": false,
+              "textMode": "value_and_name",
+              "wideLayout": true
+            }
+          },
+          "version": "13.1.0"
+        }
+      }
+    },
+    "panel-31": {
+      "kind": "Panel",
+      "spec": {
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${datasource}"
+                    },
+                    "group": "influxdb",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "query": "SELECT last(\"status_synced_at\") FROM \"kia\" WHERE time > now() - 30d",
+                      "rawQuery": true,
+                      "resultFormat": "time_series"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
+                }
+              }
+            ],
+            "queryOptions": {},
+            "transformations": []
+          }
+        },
+        "description": "When the car itself last sent a status report to Kia (status_synced_at), as opposed to when the exporter last polled. The cloud cache only updates when the car wakes up, so hours-old is normal while it is parked.",
+        "id": 31,
+        "links": [],
+        "title": "Car Last Reported",
+        "vizConfig": {
+          "group": "stat",
+          "kind": "VizConfig",
+          "spec": {
+            "fieldConfig": {
+              "defaults": {
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "dateTimeFromNow"
+              },
+              "overrides": []
+            },
+            "options": {
+              "colorMode": "none",
+              "graphMode": "none",
+              "justifyMode": "auto",
+              "orientation": "auto",
+              "percentChangeColorMode": "standard",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "values": false
+              },
+              "showPercentChange": false,
+              "textMode": "auto",
+              "wideLayout": true
+            }
+          },
+          "version": "13.1.0"
+        }
+      }
     }
   },
   "layout": {
@@ -2583,6 +3082,32 @@
                       "width": 6,
                       "x": 18,
                       "y": 8
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-30"
+                      },
+                      "height": 6,
+                      "width": 18,
+                      "x": 0,
+                      "y": 14
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-31"
+                      },
+                      "height": 6,
+                      "width": 6,
+                      "x": 18,
+                      "y": 14
                     }
                   }
                 ]
