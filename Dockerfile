@@ -3,6 +3,6 @@ ENV PYTHONUNBUFFERED=1 POLL_INTERVAL=1800 INFLUX_PORT=8086 INFLUX_DB=vehicle MEA
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY kia_influx.py .
+COPY kia_influx.py kia_dump.py .
 VOLUME ["/data"]
 CMD ["python", "kia_influx.py"]

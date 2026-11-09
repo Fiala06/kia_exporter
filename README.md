@@ -150,12 +150,21 @@ needs no per-user coordinates.
 
 ## Utilities
 
-`kia_dump.py` — one-shot dump of every non-null attribute the API returns
-for your vehicle. Run inside the container right after a drive:
+**Is the exporter writing everything the car reports?** Run the dump inside
+the container, ideally right after a drive:
 
 ```bash
 docker exec -it kia-exporter python kia_dump.py
 ```
+
+It prints, per vehicle, every non-empty value in the raw Kia Connect payload,
+the fields the exporter writes from it, the raw values that nothing reads
+(this is where anything Kia adds shows up), and the library attributes the
+car fills in that the exporter doesn't map. It also saves the raw payload to
+`/data/kia_raw_<vehicle>_<time>.json`; run it again later and it lists the
+paths that appeared or disappeared since the previous snapshot. If something
+useful turns up in "UNUSED RAW", add it to `extra_fields()` in
+`kia_influx.py` (or open an issue with the path).
 
 ## Tests
 

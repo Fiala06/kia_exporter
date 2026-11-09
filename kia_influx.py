@@ -422,9 +422,11 @@ def do_auth():
     print("\nAuth complete. Token saved. A running loop reloads it by itself.")
 
 
-def renew_session(mgr):
+def renew_session(mgr, persist=True):
     """Trade the saved rmtoken for a fresh session id and (re)load the
-    vehicles. Raises AuthenticationOTPRequired if Kia wants a new code."""
+    vehicles. Raises AuthenticationOTPRequired if Kia wants a new code.
+    persist=False leaves TOKEN_FILE alone (one-shot tools such as
+    kia_dump.py, so the running loop doesn't reload for nothing)."""
     # Keywords, not positions: login(username, password, token, pin) in
     # this library version, (username, password, pin, token) in 5.x.
     result = mgr.api.login(username=KIA_USERNAME, password=KIA_PASSWORD,
@@ -438,10 +440,11 @@ def renew_session(mgr):
     mgr.token = result
     mgr.vehicles.clear()
     mgr.initialize_vehicles()
-    save_token(mgr)
+    if persist:
+        save_token(mgr)
 
 
-def open_session():
+def open_session(persist=True):
     """Manager with a live session from the saved token, vehicles loaded.
     Raises AuthenticationOTPRequired if there is no usable token."""
     mgr = new_manager()
@@ -450,7 +453,7 @@ def open_session():
     # Always start from a fresh session id. Kia drops session ids well
     # before the 23h the library assumes, and a dead one is not told apart
     # from a dead rmtoken by this library version.
-    renew_session(mgr)
+    renew_session(mgr, persist=persist)
     log.info("Session open. Vehicles: %s",
              ", ".join(v.name for v in mgr.vehicles.values()))
     return mgr
